@@ -45,4 +45,4 @@ for article in articles:
         "checked_at": datetime.datetime.utcnow().isoformat()
     }).execute()
 
-    print(f"✅ Checked article ID {article_id} — score: {score}")
+    print(f"Checked article ID {article_id} — score: {score}")

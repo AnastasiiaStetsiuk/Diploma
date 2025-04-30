@@ -26,7 +26,7 @@ for article in articles_resp.data:
     
     if not current_domain:
         update_resp = supabase.table("sources").update({"domain": domain}).eq("id", source_id).execute()
-        print(f"✅ Updated domain for source_id={source_id}: {domain}")
+        print(f"Updated domain for source_id={source_id}: {domain}")
     
     time.sleep(0.1)
 
@@ -152,4 +152,4 @@ for source in sources:
 
     meta = source_metadata[domain]
     supabase.table("sources").update(meta).eq("id", source["id"]).execute()
-    print(f"✅ Updated: {domain}")
+    print(f"Updated: {domain}")

@@ -1,4 +1,4 @@
-from supabase import create_client
+from supabase import create_client, Client
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 import torch.nn.functional as F
@@ -14,7 +14,7 @@ model = AutoModelForSequenceClassification.from_pretrained("mrm8488/bert-tiny-fi
 suspicious_keywords = ['shocking', 'secret', 'nobody talks about', 'truth revealed', 'propaganda', 'conspiracy']
 trusted_sources = {'BBC': 0.95, 'Reuters': 0.92, 'The Guardian': 0.9, 'Associated Press': 0.93, 'Bloomberg': 0.91}
 
-articles_resp = supabase.rpc('get_unchecked_articles').execute()
+articles_resp = supabase.table("articles").select("*").execute()
 articles = articles_resp.data
 
 def predict_fake_news(text):
@@ -49,12 +49,8 @@ for article in articles:
         2
     )
 
-    supabase.table("fact_check_log").insert({
-        "article_id": article_id,
-        "checked_by": "combined_model",
-        "score": final_score,
-        "notes": "Combined score from NLP, source reliability and keywords",
-        "checked_at": datetime.datetime.utcnow().isoformat()
-    }).execute()
+    supabase.table("articles").update({
+        "fact_check_score": final_score
+     }).eq("id", article_id).execute()
 
-    print(f"🧠 Article {article_id} | NLP: {nlp_score:.2f}, Source: {source_rating:.2f}, KW: {keyword_score:.2f} => Final: {final_score:.2f}")
+    print(f"Article {article_id} | NLP: {nlp_score:.2f}, Source: {source_rating:.2f}, KW: {keyword_score:.2f} => Final: {final_score:.2f}")
