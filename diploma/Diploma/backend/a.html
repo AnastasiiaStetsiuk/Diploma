@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>GeoRisk — Cтатті</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9f6f1;
+      padding: 50px;
+      margin: 0;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      color: #556B2F;
+      margin-bottom: 40px;
+    }
+
+    #container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 20px;
+      padding: 0;
+      list-style: none;
+      margin: 0 auto;
+      max-width: 1200px;
+    }
+
+    #container li {
+      background-color: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(85, 107, 47, 0.1);
+      padding: 20px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border-left: 6px solid #8A9A5B;
+    }
+
+    #container li:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 14px rgba(85, 107, 47, 0.15);
+    }
+
+    #container a {
+      text-decoration: none;
+      color: #2c3e50;
+      font-weight: 600;
+      font-size: 18px;
+      transition: color 0.2s;
+    }
+
+    #container a:hover {
+      color: #6b813a;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 50px;
+      gap: 20px;
+    }
+
+    .pagination div {
+      padding: 12px 24px;
+      background-color: #556B2F;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+
+    .pagination div:hover {
+      background-color: #6f8440;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>GeoRisk: Imported articles</h1>
+  <ul id="container"></ul>
+
+  <div class="pagination">
+    <div id="previous">&lt;Previous</div>
+    <div id="next">Next &gt;</div>
+  </div>
+
+  <script>
+    let currentPage = parseInt((new URL(location.href)).searchParams.get('page')) || 0;
+
+    const container = document.getElementById("container");
+
+    const getPage = async (pageNumber) => {
+      const response = await fetch("/articles", {
+        method: "POST",
+        body: JSON.stringify({ page: pageNumber })
+      });
+      return await response.json();
+    };
+
+    const renderOne = (article) => {
+      const li = document.createElement("li");
+      const link = document.createElement("a");
+      link.href = '/article/' + article.id;
+      link.textContent = article.title;
+      li.appendChild(link);
+      container.appendChild(li);
+    };
+
+    const renderPage = async () => {
+      const articles = await getPage(currentPage);
+      container.innerHTML = "";
+      articles.forEach(renderOne);
+    };
+
+    const updatePageNumber = () => {
+      const url = new URL(location.href);
+      url.searchParams.set('page', currentPage);
+      window.history.pushState({}, '', url);
+    };
+
+    const next = () => {
+      currentPage++;
+      renderPage();
+      updatePageNumber();
+    };
+
+    const prev = () => {
+      currentPage = Math.max(currentPage - 1, 0);
+      renderPage();
+      updatePageNumber();
+    };
+
+    document.getElementById("next").addEventListener('click', next);
+    document.getElementById("previous").addEventListener('click', prev);
+
+    renderPage();
+  </script>
+</body>
+</html>

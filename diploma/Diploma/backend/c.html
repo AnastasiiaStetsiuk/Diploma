@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Charts</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f6f1;
+      color: #333;
+      padding: 50px;
+      margin: 0;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      color: #2c3e50;
+    }
+
+    label {
+      font-size: 16px;
+      margin-right: 10px;
+      color: #2c3e50;
+    }
+
+    select {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: 2px solid #aab385; /* olive tone */
+      background-color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      color: #556B2F;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      min-width: 200px;
+    }
+
+    select:hover, select:focus {
+      border-color: #788e3f;
+      box-shadow: 0 0 5px 1px #788e3f66;
+      outline: none;
+    }
+
+    .chart-container {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center; /* center only the chart image */
+    }
+
+    #image {
+  max-width: 1000px; /* обмежуємо ширину до 600px */
+  width: 100%;      /* щоб адаптувалася до контейнера */
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(85, 107, 47, 0.3);
+  }
+
+  </style>
+</head>
+<body>
+
+  <h1>Charts</h1>
+
+  <label for="topic-select">Select topic:</label>
+  <select name="topics" id="topic-select">
+    <option value="politics">Politics</option>
+    <option value="economics">Economics</option>
+    <option value="war">War</option>
+    <option value="military">Military</option>
+    <option value="elections">Elections</option>
+  </select>
+
+  <div class="chart-container">
+    <img id="image" alt="Chart by topic" />
+  </div>
+
+  <script>
+    const getImage = async () => {
+      const response = await fetch("/image", {
+        method: "POST",
+        body: JSON.stringify({ topic: document.getElementById("topic-select").value })
+      });
+      return await response.text();
+    }
+
+    const printImage = async () => {
+      const base64 = await getImage();
+      const img = document.getElementById("image");
+      img.setAttribute("src", "data:image/png;base64," + base64);
+    }
+
+    document.getElementById("topic-select").addEventListener('input', printImage);
+    printImage();
+  </script>
+
+</body>
+</html>

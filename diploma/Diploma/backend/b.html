@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GeoRisk — Article</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9f6f1;
+      color: #333;
+      padding: 50px;
+      margin: 0;
+    }
+
+    h1, h5 {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .line {
+      display: flex;
+      margin-bottom: 20px;
+      align-items: flex-start;
+    }
+
+    .line h5 {
+      width: 200px;
+      margin: 0;
+      font-size: 16px;
+      color: #6b813a;
+    }
+
+    .line div,
+    .line a {
+      flex: 1;
+      background-color: #ffffff;
+      padding: 12px 18px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(85, 107, 47, 0.1);
+      color: #2c3e50;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    a {
+      text-decoration: none;
+      color: #6b813a;
+      font-weight: 600;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 30px;
+      background-color: #556B2F;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      background-color: #6f8440;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 40px 0;
+      background-color: #ffffff;
+      box-shadow: 0 2px 10px rgba(85, 107, 47, 0.08);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      border: 1px solid #e0e0e0;
+      padding: 12px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f0f4eb;
+      color: #3e4e1c;
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #f9f9f6;
+    }
+  </style>
+</head>
+<body>
+
+  <a class="back-link" href="/articles">← Back to Articles</a>
+
+  <div class="line"><h5>Title:</h5><div id="article-title"></div></div>
+  <div class="line"><h5>Content:</h5><div id="article-content"></div></div>
+  <div class="line"><h5>Reliability Score:</h5><div id="fact_check_score"></div></div>
+  <div class="line"><h5>Published At:</h5><div id="published_at"></div></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Government Stability</th>
+        <th>Socioeconomic Conditions</th>
+        <th>Investment Profile</th>
+        <th>Internal Conflict</th>
+        <th>External Conflict</th>
+        <th>Corruption</th>
+        <th>Military in Politics</th>
+        <th>Religious Tensions</th>
+        <th>Law and Order</th>
+        <th>Ethnic Tensions</th>
+        <th>Democratic Accountability</th>
+        <th>Bureaucracy Quality</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>Weight</th>
+        <td id="r1"></td><td id="r2"></td><td id="r3"></td><td id="r4"></td>
+        <td id="r5"></td><td id="r6"></td><td id="r7"></td><td id="r8"></td>
+        <td id="r9"></td><td id="r10"></td><td id="r11"></td><td id="r12"></td>
+      </tr>
+      <tr>
+        <th>Score</th>
+        <td id="s1"></td><td id="s2"></td><td id="s3"></td><td id="s4"></td>
+        <td id="s5"></td><td id="s6"></td><td id="s7"></td><td id="s8"></td>
+        <td id="s9"></td><td id="s10"></td><td id="s11"></td><td id="s12"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="line"><h5>Topic:</h5><div id="topic"></div></div>
+  <div class="line"><h5>URL:</h5><a id="url" target="_blank"></a></div>
+
+  <script>
+    const map = new Map([
+      ["Government Stability", "1"],
+      ["Socioeconomic Conditions", "2"],
+      ["Investment Profile", "3"],
+      ["Internal Conflict", "4"],
+      ["External Conflict", "5"],
+      ["Corruption", "6"],
+      ["Military in Politics", "7"],
+      ["Religious Tensions", "8"],
+      ["Law and Order", "9"],
+      ["Ethnic Tensions", "10"],
+      ["Democratic Accountability", "11"],
+      ["Bureaucracy Quality", "12"]
+    ]);
+
+    const articleTitle = document.getElementById("article-title");
+    const articleContent = document.getElementById("article-content");
+    const factCheckScore = document.getElementById("fact_check_score");
+    const publishedAt = document.getElementById("published_at");
+    const topic = document.getElementById("topic");
+    const url = document.getElementById("url");
+
+    const getArticle = async (articleId) => {
+      const response = await fetch("/article", {
+        method: "POST",
+        body: JSON.stringify({ article: articleId })
+      });
+      return await response.json();
+    }
+
+    const printArticle = async () => {
+      const article = await getArticle(new URL(location.href).pathname.split('/')[2]);
+      const artt = article[0];
+      articleTitle.innerText = artt.title;
+      articleContent.innerText = artt.content;
+      factCheckScore.innerText = artt.fact_check_score;
+      publishedAt.innerText = artt.published_at;
+      topic.innerText = artt.topic;
+      url.innerText = artt.url;
+      url.href = artt.url;
+
+      artt.icrg_risk_components.forEach((c) => {
+        const s = map.get(c.component);
+        document.getElementById("s" + s).innerText = c.score;
+        document.getElementById("r" + s).innerText = c.weight;
+      });
+    }
+
+    printArticle();
+  </script>
+</body>
+</html>
